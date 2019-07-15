@@ -1,0 +1,83 @@
+\documentclass{ntuthesis}
+
+\usepackage{times}
+\usepackage{verbatim}
+\usepackage{color}
+\usepackage{url}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{wallpaper}
+\usepackage{hyperref}
+\usepackage[printwatermark]{xwatermark}
+\usepackage{graphicx}
+\usepackage{pdfpages}
+
+% Using the tex-text mapping for ligatures etc.
+\defaultfontfeatures{Mapping=tex-text}
+
+% Set the default fonts
+\setmainfont{Times New Roman}
+\setCJKmainfont{BiauKai}
+
+\ifdefined\withwatermark
+  \newwatermark*[allpages,xpos=6.1725cm,ypos=10.5225cm,scale=0.5]{\includegraphics{watermark.pdf}}
+\fi
+
+% digital object identifier
+\ifdefined\withdoi
+  \insertdoi
+\fi
+
+\makeatletter
+\AtBeginDocument{
+  \hypersetup{
+    pdftitle={\@titleen},
+    pdfauthor={\@authoren},
+    pdfsubject={\@typeen{} \@classen},
+    pdfkeywords={\@keywordsen}
+  }
+}
+\makeatother
+
+% Your information goes here
+\input{ntuvars}
+
+\begin{document}
+
+\frontmatter
+
+\makecover
+
+\ifdefined\withcertification
+  \includepdf[angle=0]{certification.pdf}
+\else
+  \makecertification
+\fi
+
+\input{acknowledgements}
+\input{abstract}
+
+\tableofcontents
+\listoffigures
+\listoftables
+
+\mainmatter
+
+\input{ch1_introduction.tex}
+\input{ch2_related_works.tex}
+\input{ch3_background.tex}
+\input{ch4_methodology.tex}
+\input{ch5_experiments_and_results.tex}
+\input{ch6_conclusion.tex}
+
+\appendix
+
+\backmatter
+
+\addcontentsline{toc}{chapter}{\bibname}
+\bibliographystyle{abbrv}
+
+% Your bibliography goes here
+\bibliography{thesis}
+
+\end{document}

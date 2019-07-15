@@ -1,0 +1,13 @@
+\begin{abstractzh}
+  在這篇論文中，我們描述 FileFarm: 一個建構於現有雲端儲存服務之上，為防止資料外洩並去除對單一雲端依賴而設計的雲中雲儲存系統。 為了解決既有雲中雲設計因集中式資料庫而造成的一致性和負載平衡問題，FileFarm 採取端對端(P2P)的解決方案。在FileFarm中，每個雲端服務皆為可獨立運作的單元，對客戶端提供相同的服務。這些被稱為$Farmer$的單元相互合作，共同組成一個端對端儲存網路。FileFarm可容忍同時發生於至多$K-1$個Farmer上的錯誤，其中$K$為一個可調整的系統參數。為了在端對端網路中有效率地尋找資源，FileFarm實作了$Kademlia$分散式雜湊表協定\cite{maymounkov2002kademlia}。 FileFarm 從Kademlia 中繼承了許多重要的特性，包含：備份數維護、高效率搜尋、平行且負載平衡的設計。除此之外，作為一個企業級儲存系統，FileFarm還需滿足以下四項條件：(1)資料機密性 (2)權限管理 (3)成本效益 (4)長期可存取性。 為此，FileFarm以此四個條件為面向分別設計對應的機制： (1)加密與資訊分散演算法 (2)分散式認證 (3)儲存空間釋放與下載次序差異化 (4)公有雲ID指定規則。我們基於系統所提供的特性將FileFarm與相關文獻進行比較，同時我們實作了一個系統原型並利用此原型進行一系列實驗以驗證我們聲稱的特性。此系統原型同時也是我們所提出的結構化端對端資料儲存解決方案之產品原型。
+
+\bigbreak
+\noindent \textbf{關鍵字：}{\, \makeatletter \@keywordszh \makeatother}
+\end{abstractzh}
+
+\begin{abstracten}
+  In this paper, we describe FileFarm: a secured storage overlay that leverages existing cloud services to form a cloud-of-clouds storage system with no single-point-of-failure and minimal data leakage concerns. To resolve the consistency and load-balancing issues caused by a centralized database design in conventional cloud-of-clouds settings, FileFarm adopts a P2P strategy, in which each cloud operates as an independent node providing identical service for clients. The storage nodes, called farmers, cooperate with each other to form a peer-to-peer network. The FileFarm network tolerates concurrent failures occurring at any $K-1$ farmers, where $K$ is a configurable system-wise parameter. To look up resources efficiently in a P2P network, FileFarm implements \textit{Kademlia} DHT(Distributed Hash Table) protocol\cite{maymounkov2002kademlia}. Several desired properties of FileFarm are inherited from Kademlia: redundancy maintenance, efficient search and parallel, load-balancing design. However, in order to serve as an enterprise-level storage, 4 further properties are required: (1) data confidentiality, (2) access management, (3) cost-efficiency, (4) long-term retrievability. FileFarm meets these requirements by designing corresponding mechanisms, which collectively  make FileFarm a robust, secure and cost-efficient storage solution: (1) Encryption and Information Dispersal Algorithm, (2) Decentralized Authentication, (3) Storage Release and Prioritized Download, (4)Public Farmer ID Assignment. We compare FileFarm with related implementations in various aspects of properties. We also implement a proof-of-concept and perform a series of experiments on it to verify our claims.  The proof-of-concept not only confirms our claims but also served as a product prototype of our structured P2P file storage solution.
+
+\bigbreak
+\noindent \textbf{Keywords:}{\, \makeatletter \@keywordsen \makeatother}
+\end{abstracten}
