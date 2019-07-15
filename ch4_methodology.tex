@@ -84,8 +84,6 @@ This gives FileFarm guarantees on $redundancy$, certain level of $I/O$ $efficien
   \item A $parallel$ design in which clients upload /download different shards from different farmers simultaneously
 \end{enumerate}
 
-\newpage
-
 % Beyond DHT
 \section{Beyond DHT}
 \label{s:beyonddht}
@@ -116,6 +114,8 @@ From \ref{s:dhtbasedapproach}, we acknowledged that FileFarm inherits a number o
   \caption{FileFarm's property stack}
   \label{fig:propertystack}
 \end{figure}
+
+\newpage
 
 % data confidentiality
 \section{Data Confidentiality}
@@ -154,8 +154,6 @@ FileFarm aims to become an enterprise storage system applied in a private contex
 
 This approach is based on the concept of Public Key Infrastructure, which is described in \ref{s:publickeyinfrastructure}, whereas the goal here is to validate clients but not serving hosts. The approach involves 3 kinds of roles: farmers, clients, and the administrator. When the administrator initializes the system, it generates a private/public key pair and install the public key on all launched farmers. When a client wants to access the FileFarm system, it generates a private/public key pair and sends a certificate signing request to the administrator, which includes the client's information along with its public key. On receiving such request, the administrator makes a decision on whether to grant access for the client or not. If the client passes administrator's validation, the administrator creates a signature on the signing request, which turns into a certificate. The certificate is then sent back to the client. With a certificate issued by the administrator, the client is now allowed to access the FileFarm storage network. To access FileFarm, the client appends its certificate to the connection request packet, and then encrypts the payload with its own private key. When receiving request from clients, a farmer check the validity of the certificate by verifying the signature on it using administrator's public key. The farmer also verifies client's identity by decrypting the payload using client's public key specified in the certificate.
 
-\newpage
-
 % cost efficiency
 \section{Cost Efficiency}
 \label{s:costefficiency}
@@ -185,8 +183,6 @@ These advantages make it reasonable for enterprises to split a little portion of
 Within hybrid-cloud settings, prioritized download ensures that shards are preferred to be downloaded from private farmers. This not only reduces data transfer fee charged by public clouds, but also improves download performance, based on the advantages of private farmers listed above.
 
 To understand how prioritized download works, we need to take a closer look at how the underlying Kademlia DHT protocol retrieves a shard. Kademlia implements an iterative VALUE\_LOOKUP procedure to retrieve shards. To be more specific, a farmer initializes a VALUE\_LOOKUP for a target $key$ by loading the $K$ closest farmers it already knows into a lookup table. For each of the farmers in the lookup table, it sends out a "FIND\_VALUE" message. If the recipient does store the shard, it will response with the shard directly; otherwise, it will response with the $K$ farmers it knows closest to the target $key$. In the former case, the VALUE\_LOOKUP procedure finishes since the shard has successfully been retrieved by the requesting farmer; in the latter case, the requesting farmer updates its lookup table with the returned $K$ farmers and then sends another "FIND\_VALUE" message to the closest farmer known so far that hasn't been queried. The procedure is repeated until the shard is found or all farmers in the lookup table have been queried, which is the failed case of retrieval.
-
-\newpage
 
 Prioritized download is a modified version of VALUE\_LOOKUP, with some noticeable differences:
 

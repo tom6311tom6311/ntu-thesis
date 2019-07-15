@@ -53,6 +53,8 @@ In this experiment, we start $m$ farmers on each physical host; thus there are $
   \label{fig:valuelookupefficiency}
 \end{figure}
 
+\newpage
+
 From figure \ref{fig:valuelookupefficiency}, we can observe that VALUE\_LOOKUP also follows a logarithm curve, but the number of hops needed is far less than that needed by LOOKUP shown in \ref{fig:lookupefficiency}. In a FileFarm network of 100 farmers, it only takes less than 3 hops to find a shard. Besides, as $K$ increases, number of hops decreases roughly with a factor $H_{K}$ depicted by Cai\cite{cai2013probabilistic}. Putting this result with \ref{s:explookupefficiency}, we can conclude that a larger choice of $K$ results in more uploading overhead, while improves download performance.
 
 % exp: Retrievability
