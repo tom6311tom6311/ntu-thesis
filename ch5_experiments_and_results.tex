@@ -20,29 +20,29 @@ In the following experiments, we run FileFarm on 5 physical hosts with following
 
 \newpage
 
-% exp: LOOKUP Efficiency
-\section{Experiment: LOOKUP Efficiency}
-\label{s:explookupefficiency}
+% exp: NODE_LOOKUP Efficiency
+\section{Experiment: NODE\_LOOKUP Efficiency}
+\label{s:expnodelookupefficiency}
 
-In FileFarm, each shard is stored on exactly $K$ farmers. Instead of saving location of shards as static records in a centralized database, FileFarm adopts Kademlia's dynamical look up procedures. Thus, the efficiency of these procedures will impact system's I/O performance greatly. According to the sketch of proof in \cite{maymounkov2002kademlia}, LOOKUPs in a Kademlia network will finish in $\lceil log(n) \rceil + c$ steps for some small constant of $c$, where $n$ is network size, i.e., number of nodes in the network. We want to verify that this property also holds in FileFarm.
+In FileFarm, each shard is stored on exactly $K$ farmers. Instead of saving location of shards as static records in a centralized database, FileFarm adopts Kademlia's dynamical lookup procedures. Thus, the efficiency of these procedures will impact system's I/O performance greatly. According to the sketch of proof in \cite{maymounkov2002kademlia}, NODE\_LOOKUPs in a Kademlia network will finish in $\lceil log(n) \rceil + c$ steps for some small constant of $c$, where $n$ is network size, i.e., number of nodes in the network. We want to verify that this property also holds in FileFarm.
 
-In this experiment, we start $m$ farmers on each physical host; thus there are $n = 5 \times m$ farmers in total. After all farmers are bootstrapped, we make each farmer LOOKUP 10 random targets and report the number of hops needed to locate the $K$ closest farmers around the target. Then we collect and compute mean of hops needed. The whole process is repeated for $m=1,2,5,10,20,50$ and $K=1,2,3,4,5$.
+In this experiment, we start $m$ farmers on each physical host; thus there are $n = 5 \times m$ farmers in total. After all farmers are bootstrapped, we make each farmer NODE\_LOOKUP 10 random targets and report the number of hops needed to locate the $K$ closest farmers around the target. Then we collect and compute mean of hops needed. The whole process is repeated for $m=1,2,5,10,20,50$ and $K=1,2,3,4,5$.
 
 \begin{figure}[hbt]
 \centering
   \includegraphics[width=14cm]{charts/chart_lookup_efficiency.png}
-  \caption{Number of LOOKUP steps (hops) with respect to $K$ and network size}
+  \caption{Number of NODE\_LOOKUP steps (hops) with respect to $K$ and network size}
   \label{fig:lookupefficiency}
 \end{figure}
 
-From Figure \ref{fig:lookupefficiency}, we can observe that number of LOOKUP steps grows with number of farmers, following a logarithm-like curve. With number of farmers growing from 100 to 200, it only takes around 2 more steps to locate all $K$ closest farmers, which makes FileFarm network scalable. However, it can also be observed that a larger setting of $K$ requires more steps for LOOKUP procedure to finish, which is intuitive, considering the fact that LOOKUP finds all of the $K$ closest farmers but not one or some of them.
+From Figure \ref{fig:lookupefficiency}, we can observe that number of NODE\_LOOKUP steps grows with number of farmers, following a logarithm-like curve. With number of farmers growing from 100 to 200, it only takes around 2 more steps to locate all $K$ closest farmers, which makes FileFarm network scalable. However, it can also be observed that a larger setting of $K$ requires more steps for NODE\_LOOKUP procedure to finish, which is intuitive, considering the fact that NODE\_LOOKUP finds all of the $K$ closest farmers but not one or some of them.
 
 
 % exp: VALUE_LOOKUP Efficiency
 \section{Experiment: VALUE\_LOOKUP Efficiency}
 \label{s:expvaluelookupefficiency}
 
-Just like performing LOOKUP before uploading a shard, farmers perform VALUE\_LOOKUP before downloading a shard. Different from LOOKUP, the VALUE\_LOOKUP procedure finishes immediately when the target value is found. Thus, VALUE\_LOOKUP procedure only needs to reach any one of the $K$ closest farmers instead of finding all of them. According to Cai's analysis\cite{cai2013probabilistic}, it takes no more than $(1+O(1))\frac{log(n)}{H_{K}}$ steps for any node in a Kademlia network to locate any other node, where $H_K = \sum_{i=1}^{K} 1/i$. This upper bound also stands for VALUE\_LOOKUP, considering the fact that VALUE\_LOOKUP for the target key converges along the same path as LOOKUP for the closest farmer, due to $unidirectionality$ of XOR distance metrics. In this experiment, we want to verify this property on FileFarm and compare the result with \ref{s:explookupefficiency}.
+Just like performing NODE\_LOOKUP before uploading a shard, farmers perform VALUE\_LOOKUP before downloading a shard. Different from NODE\_LOOKUP, the VALUE\_LOOKUP procedure finishes immediately when the target value is found. Thus, VALUE\_LOOKUP procedure only needs to reach any one of the $K$ closest farmers instead of finding all of them. According to Cai's analysis\cite{cai2013probabilistic}, it takes no more than $(1+O(1))\frac{log(n)}{H_{K}}$ steps for any node in a Kademlia network to locate any other node, where $H_K = \sum_{i=1}^{K} 1/i$. This upper bound also stands for VALUE\_LOOKUP, considering the fact that VALUE\_LOOKUP for the target key converges along the same path as NODE\_LOOKUP for the closest farmer, due to $unidirectionality$ of XOR distance metric. In this experiment, we want to verify this property on FileFarm and compare the result with \ref{s:expnodelookupefficiency}.
 
 In this experiment, we start $m$ farmers on each physical host; thus there are $n = 5 \times m$ farmers in total. After all farmers are bootstrapped, we starts 1 client on each physical hosts and make them upload 100 random files in total. Then we make each client send 200 file download requests randomly and let farmers report the number of hops needed for each VALUE\_LOOKUP. We collect and compute mean of hops needed. The whole process is repeated for $m=1,2,5,10,20,50$ and $K=1,2,3,4,5$.
 
@@ -55,17 +55,51 @@ In this experiment, we start $m$ farmers on each physical host; thus there are $
 
 \newpage
 
-From figure \ref{fig:valuelookupefficiency}, we can observe that VALUE\_LOOKUP also follows a logarithm curve, but the number of hops needed is far less than that needed by LOOKUP shown in \ref{fig:lookupefficiency}. In a FileFarm network of 100 farmers, it only takes less than 3 hops to find a shard. Besides, as $K$ increases, number of hops decreases roughly with a factor $H_{K}$ depicted by Cai\cite{cai2013probabilistic}. Putting this result with \ref{s:explookupefficiency}, we can conclude that a larger choice of $K$ results in more uploading overhead, while improves download performance.
+From figure \ref{fig:valuelookupefficiency}, we can observe that VALUE\_LOOKUP also follows a logarithm curve, but the number of hops needed is far less than that needed by NODE\_LOOKUP shown in \ref{fig:lookupefficiency}. In a FileFarm network of 100 farmers, it only takes less than 3 hops to find a shard. Besides, as $K$ increases, number of hops decreases roughly with a factor $H_{K}$ depicted by Cai\cite{cai2013probabilistic}. Putting this result with \ref{s:expnodelookupefficiency}, we can conclude that a larger choice of $K$ results in more uploading overhead, while improves download performance.
 
 % exp: Retrievability
 \section{Experiment: Retrievability}
 \label{s:expretrievability}
 
+Retrievability is one of the most important metrics used to measure quality of a cloud storage system. In this experiment, we want to examine how FileFarm is likely to keep client's data, and how certain configuration parameters affect the likelihood of uploaded files to be retrievable by clients. To be precise, we define retrievability as:
+
+\begin{center}
+  $Retrievability = \frac{\# Successfully Reconstructed}{\# Total Download Attempts}$
+\end{center}
+
+\noindent Belows are the configuration parameter to be considered in this experiment:
+
+\begin{enumerate}
+  \item $\alpha$: Online probability of each farmer.
+  \item $K$: Number of redundant copies stored for each shard.
+  \item $q$: Redundancy parameter in a (4, q) IDA schema; A file is recoverable given any 4 out of the (4+q) shards.
+\end{enumerate}
+
+As for the experimental procedure, we runs 10 farmers with online probalility $\alpha$. After the farmers are bootstrapped, we run 100 clients and make them start random uploading/downloading. For each download request, the client reports if the file is successfully reconstructed. We Collect 1,000,000 reports from clients and compute retrievability. The whole process is repeated for $K=1,2,3$, $q=0,1,2$ and $\alpha=0.9,0.99$.
+
+\begin{table}[hbt]
+  \centering
+    \includegraphics[width=14cm]{tables/table_retrievability.png}
+    \caption{Retrievability of files with respect to $\alpha$, $K$ and $q$}
+    \label{table:retrievability}
+\end{table}
+  
+\begin{figure}[hbt]
+  \centering
+    \includegraphics[width=14cm]{charts/chart_retrievability.png}
+    \caption{Retrievability of files with respect to $\alpha$, $K$ and $q$}
+    \label{fig:retrievability}
+\end{figure}
+
+From the result shown in \ref{table:retrievability}, we observe that network redundancy parameter $K$ and IDA redundancy parameter $q$ both effectively impact the retrievability of files. By increasing $K$, retrievability can be improved significantly. However, increasing $K$ has a relatively large overhead, considering the fact that an incremental in $K$ will consume an extra amount of storage space equaling to the actual file size. To reduce cost while preserving retrievability, increasing $q$ is a resonable choice. In addition, we also observe that a selection of $K=2$ roughly squares the data lost probability. For example, within a system where farmers have $0.1$ probability to be offline, a setting of $K=2 and q=1$ roughly achieves the data lost rate of $0.1^{2}=0.01$, which is effective considering the fact that a cloud service normally has much lower probability to be unavailable, and we can make the probalility of losing data even lower by building FileFarm upon them.
+
+\newpage
+
 % exp: Throughput
 \section{Experiment: Throughput}
 \label{s:expthroughput}
 
-In this experiment, we want to test FileFarm's I/O performance under different file size and sharding schemes. As described in figure \ref{fig:uploadflow} and figure \ref{fig:downloadflow}, the upload process of FileFarm involves slicing, encryption, IDA computation, LOOKUP, ... while the download process involves VALUE\_LOOKUP, IDA computation, decryption, combining... Some operations can be done in parallel, while others cannot. To analyze performance of such complicated flows, we run experiments and measure the elapsed time.
+In this experiment, we want to test FileFarm's I/O performance under different file size and sharding schemes. As described in figure \ref{fig:uploadflow} and figure \ref{fig:downloadflow}, the upload process of FileFarm involves slicing, encryption, IDA computation, NODE\_LOOKUP, ... while the download process involves VALUE\_LOOKUP, IDA computation, decryption, combining... Some operations can be done in parallel, while others cannot. To analyze performance of such complicated flows, we run experiments and measure the elapsed time.
 
 As for the experimental procedure, we runs 5 farmers and 25 clients in total. Each farmer is assumed to have a 10 MB/s upload bandwidth. Once all farmers and clients are bootstrapped, we let clients start random upload and download files of size $S$ with a sharding scheme which generates $p$ shards in total. While uploading and downloading, we let clients report time consumption for each operations until 100 upload and 100 download reports have been collected. We collect these reports and compute mean of upload/download throughput. The whole process is repeated for $S=1,4,16,64,256,1024$ and $p=1,2,4,8,16,32$.
 
@@ -87,6 +121,6 @@ From the result shown in figure \ref{fig:uploadthroughput}, we observe that uplo
 
 Due to the procedural differences, the chart of download throughput, figure \ref{fig:downloadthroughput} seems different from that of upload throughput. First, the curves achieve peak value when number of shards is around 8. Second, download throughput is generally higher than upload throughput. This is because of the fact that download only involves retrieval of 1 copy of the target shard instead of $K$. Considering figure \ref{fig:uploadthroughput} and figure \ref{fig:downloadthroughput} collectively, we can conclude that under this scenario, choices of \#shards = 8 or 16 brings the best I/O performance in general.
 
-% exp: Cost Efficiency
-\section{Experiment: Cost Efficiency}
-\label{s:expcostefficiency}
+% % exp: Cost Efficiency
+% \section{Experiment: Cost Efficiency}
+% \label{s:expcostefficiency}
