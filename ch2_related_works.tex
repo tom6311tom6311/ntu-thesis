@@ -10,8 +10,6 @@ This chapter surveys previous works in the domain of cloud-of-clouds and disting
   \label{table:propertycomparison}
 \end{table}
 
-\newpage
-
 % redundancy and confidentiality
 \section{Redundancy and Confidentiality}
 \label{ss:cocredundancyandconfidentiality}
@@ -21,8 +19,6 @@ To avoid dependence of data retrievability on a single cloud, redundancy mechani
 Besides erasure coding, secret sharing mechanisms such as Shamir's Secret Sharing\cite{shamir1979share} and Information Dispersal Algorithm\cite{rabin1989efficient} also provides redundancy as their side benefit. These mechanisms splits a piece of data into several, say $n$, encrypted chunks, with the assurance that a certain number $m <= n$ of these encrypted chunks are sufficient for recovering the original data. Thus, these secret sharing mechanisms provide advantages in both redundancy and confidentiality. The mechanisms are employed by MCDB\cite{alzain2011mcdb}, DepSky\cite{bessani2013depsky}, ICStore\cite{cachin2010dependable}, HAIL\cite{bowers2009hail}, and also FileFarm.
 
 There are still some other coding mechanisms designed` to provide redundancy and confidentiality for cloud-of-cloud storage. For instance, CDStore\cite{li2015cdstore} is built on an augmented secret sharing scheme called convergent dispersal, which provides benefits of deduplication, storage savings and robustness against side-channel attacks. NCCloud\cite{hu2012nccloud} use functional minimum storage regenerating code (F-MSR) to achieve cost-effective repair for a permanent single-cloud failure.
-
-\newpage
 
 % location query
 \section{Location Query}
@@ -35,8 +31,6 @@ Systems like MCDB\cite{alzain2011mcdb}, DepSky\cite{bessani2013depsky}, ICStore\
 Nevertheless, there are several issues related to such metastore designs. First, since the mapping between files and clouds is saved as static database records, the records will become out-of-date if some clouds encounter service outage, which has a direct impact on retrievability of files. Second, the static approach has a lack of mechanisms for dynamical replication of shard when encountering permanent single-cloud failures. As a result, the systems have low tolerance for less-reliable providers or successive change of clouds over a long period of time. Third, considering the cases of new clouds joining the system, it takes high cost to re-distribute the data over all clouds; thus these systems would suffer from load-balancing issues and high vendor-switching cost inevitably. Last but not the least, the metastore is regarded as a logically-centralized layer. In spite of the fact that this layer might be implemented with Byzantine Fault Tolerance algorithms or distributed synchronization tools (e.g. Apache ZooKeeper\cite{zookeeper}), the system cannot work without this layer, while any fault occurring to this layer will pose an direct impact on the whole system.
 
 To solve the problems caused by a logically-centralized metastore layer, FileFarm adopts a distributed approach for location query. In FileFarm, clouds coordinate with each other to form a peer-to-peer storage network, while data chunks can be located with an efficient and dynamical lookup procedure defined by Kademlia\cite{maymounkov2002kademlia} DHT protocol. Without a centralized layer storing static information, location query mechanism in FileFarm does not suffer from out-of-date issue and is robust to churn of clouds and network changes in terms of topology or scale. This is the fundamental difference between FileFarm and traditional approaches for cloud-of-clouds. Based on this architectural difference, FileFarm is able to carry out more features that can not be handled well by centralized or hierarchical solutions, such as automatic storage repair, load-balancing, and better degree of fault tolerance.
-
-\newpage
 
 % storage repair
 \section{Storage Repair}

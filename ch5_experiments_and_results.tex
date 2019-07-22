@@ -18,24 +18,22 @@ In the following experiments, we run FileFarm on 5 physical hosts with following
 
  \noindent Each of the 5 physical hosts is assigned with a static IP address, and all of the 5 IP addresses belong to the same subnet with mask 255.255.255.0. Depending on settings of each experiment, a physical host might runs one or multiple instances of FileFarm farmers and clients simultaneously.
 
-\newpage
-
 % exp: NODE_LOOKUP Efficiency
 \section{Experiment: NODE\_LOOKUP Efficiency}
 \label{s:expnodelookupefficiency}
 
 In FileFarm, each shard is stored on exactly $K$ farmers. Instead of saving location of shards as static records in a centralized database, FileFarm adopts Kademlia's dynamical lookup procedures. Thus, the efficiency of these procedures will impact system's I/O performance greatly. According to the sketch of proof in \cite{maymounkov2002kademlia}, NODE\_LOOKUPs in a Kademlia network will finish in $\lceil log(n) \rceil + c$ steps for some small constant of $c$, where $n$ is network size, i.e., number of nodes in the network. We want to verify that this property also holds in FileFarm.
 
-In this experiment, we start $m$ farmers on each physical host; thus there are $n = 5 \times m$ farmers in total. After all farmers are bootstrapped, we make each farmer NODE\_LOOKUP 10 random targets and report the number of hops needed to locate the $K$ closest farmers around the target. Then we collect and compute mean of hops needed. The whole process is repeated for $m=1,2,5,10,20,50$ and $K=1,2,3,4,5$.
+In this experiment, we start $m$ farmers on each physical host; thus there are $n = 5 \times m$ farmers in total. After all farmers are bootstrapped, we make each farmer NODE\_LOOKUP 10 random targets and report the number of steps needed to locate the $K$ closest farmers around the target. Then we collect and compute mean of steps needed. The whole process is repeated for $m=1,2,5,10,20,50$ and $K=1,2,3,4,5$.
 
 \begin{figure}[hbt]
 \centering
-  \includegraphics[width=14cm]{charts/chart_lookup_efficiency.png}
-  \caption{Number of NODE\_LOOKUP steps (hops) with respect to $K$ and network size}
-  \label{fig:lookupefficiency}
+  \includegraphics[width=14cm]{charts/chart_node_lookup_efficiency.png}
+  \caption[NODE\_LOOKUP steps with respect to $K$ and network size $n$]{NODE\_LOOKUP steps with respect to redundancy parameter $K$ and network size $n$. The curve shows a logarithm relationship between NODE\_LOOKUP steps and network size.}
+  \label{fig:nodelookupefficiency}
 \end{figure}
 
-From Figure \ref{fig:lookupefficiency}, we can observe that number of NODE\_LOOKUP steps grows with number of farmers, following a logarithm-like curve. With number of farmers growing from 100 to 200, it only takes around 2 more steps to locate all $K$ closest farmers, which makes FileFarm network scalable. However, it can also be observed that a larger setting of $K$ requires more steps for NODE\_LOOKUP procedure to finish, which is intuitive, considering the fact that NODE\_LOOKUP finds all of the $K$ closest farmers but not one or some of them.
+From Figure \ref{fig:nodelookupefficiency}, we can observe that number of NODE\_LOOKUP steps grows with number of farmers, following a logarithm-like curve. With number of farmers growing from 100 to 200, it only takes around 2 more steps to locate all $K$ closest farmers, which makes FileFarm network scalable. However, it can also be observed that a larger setting of $K$ requires more steps for NODE\_LOOKUP procedure to finish, which is intuitive, considering the fact that NODE\_LOOKUP finds all of the $K$ closest farmers but not one or some of them.
 
 
 % exp: VALUE_LOOKUP Efficiency
@@ -44,18 +42,16 @@ From Figure \ref{fig:lookupefficiency}, we can observe that number of NODE\_LOOK
 
 Just like performing NODE\_LOOKUP before uploading a shard, farmers perform VALUE\_LOOKUP before downloading a shard. Different from NODE\_LOOKUP, the VALUE\_LOOKUP procedure finishes immediately when the target value is found. Thus, VALUE\_LOOKUP procedure only needs to reach any one of the $K$ closest farmers instead of finding all of them. According to Cai's analysis\cite{cai2013probabilistic}, it takes no more than $(1+O(1))\frac{log(n)}{H_{K}}$ steps for any node in a Kademlia network to locate any other node, where $H_K = \sum_{i=1}^{K} 1/i$. This upper bound also stands for VALUE\_LOOKUP, considering the fact that VALUE\_LOOKUP for the target key converges along the same path as NODE\_LOOKUP for the closest farmer, due to $unidirectionality$ of XOR distance metric. In this experiment, we want to verify this property on FileFarm and compare the result with \ref{s:expnodelookupefficiency}.
 
-In this experiment, we start $m$ farmers on each physical host; thus there are $n = 5 \times m$ farmers in total. After all farmers are bootstrapped, we starts 1 client on each physical hosts and make them upload 100 random files in total. Then we make each client send 200 file download requests randomly and let farmers report the number of hops needed for each VALUE\_LOOKUP. We collect and compute mean of hops needed. The whole process is repeated for $m=1,2,5,10,20,50$ and $K=1,2,3,4,5$.
+In this experiment, we start $m$ farmers on each physical host; thus there are $n = 5 \times m$ farmers in total. After all farmers are bootstrapped, we starts 1 client on each physical hosts and make them upload 100 random files in total. Then we make each client send 200 file download requests randomly and let farmers report the number of steps needed for each VALUE\_LOOKUP. We collect and compute mean of steps needed. The whole process is repeated for $m=1,2,5,10,20,50$ and $K=1,2,3,4,5$.
 
 \begin{figure}[hbt]
 \centering
   \includegraphics[width=14cm]{charts/chart_value_lookup_efficiency.png}
-  \caption{Number of VALUE\_LOOKUP hops with respect to $K$ and network size}
+  \caption[VALUE\_LOOKUP steps with respect to $K$ and network size $n$]{VALUE\_LOOKUP steps with respect to redundancy parameter $K$ and network size $n$. Like \ref{fig:nodelookupefficiency}, VALUE\_LOOKUP steps also grows with network size following a logarithm curve; while number of steps needed is far less than that needed by NODE\_LOOKUP.}
   \label{fig:valuelookupefficiency}
 \end{figure}
 
-\newpage
-
-From figure \ref{fig:valuelookupefficiency}, we can observe that VALUE\_LOOKUP also follows a logarithm curve, but the number of hops needed is far less than that needed by NODE\_LOOKUP shown in \ref{fig:lookupefficiency}. In a FileFarm network of 100 farmers, it only takes less than 3 hops to find a shard. Besides, as $K$ increases, number of hops decreases roughly with a factor $H_{K}$ depicted by Cai\cite{cai2013probabilistic}. Putting this result with \ref{s:expnodelookupefficiency}, we can conclude that a larger choice of $K$ results in more uploading overhead, while improves download performance.
+From figure \ref{fig:valuelookupefficiency}, we can observe that VALUE\_LOOKUP also follows a logarithm curve, but the number of steps needed is far less than that needed by NODE\_LOOKUP shown in \ref{fig:nodelookupefficiency}. In a FileFarm network of 100 farmers, it only takes less than 3 steps to find a shard. Besides, as $K$ increases, number of steps decreases roughly with a factor $H_{K}$ depicted by Cai\cite{cai2013probabilistic}. Putting this result with \ref{s:expnodelookupefficiency}, we can conclude that a larger choice of $K$ results in more uploading overhead, while improves download performance.
 
 % exp: Retrievability
 \section{Experiment: Retrievability}
@@ -80,7 +76,7 @@ As for the experimental procedure, we runs 10 farmers with online probalility $\
 \begin{table}[hbt]
   \centering
     \includegraphics[width=14cm]{tables/table_retrievability.png}
-    \caption{Retrievability of files with respect to $\alpha$, $K$ and $q$}
+    \caption[Retrievability of files with respect to farmer's online probability $\alpha$, network redundancy parameter $K$ and IDA redundancy parameter $q$]{Retrievability of files with respect to farmer's online probability $\alpha$, network redundancy parameter $K$ and IDA redundancy parameter $q$. The table shows that increasing $K$ and $q$ can both improve retrievability of files effectively.}
     \label{table:retrievability}
 \end{table}
   
@@ -93,8 +89,6 @@ As for the experimental procedure, we runs 10 farmers with online probalility $\
 
 From the result shown in \ref{table:retrievability}, we observe that network redundancy parameter $K$ and IDA redundancy parameter $q$ both effectively impact the retrievability of files. By increasing $K$, retrievability can be improved significantly. However, increasing $K$ has a relatively large overhead, considering the fact that an incremental in $K$ will consume an extra amount of storage space equaling to the actual file size. To reduce cost while preserving retrievability, increasing $q$ is a resonable choice. In addition, we also observe that a selection of $K=2$ roughly squares the data lost probability. For example, within a system where farmers have $0.1$ probability to be offline, a setting of $K=2 and q=1$ roughly achieves the data lost rate of $0.1^{2}=0.01$, which is effective considering the fact that a cloud service normally has much lower probability to be unavailable, and we can make the probalility of losing data even lower by building FileFarm upon them.
 
-\newpage
-
 % exp: Throughput
 \section{Experiment: Throughput}
 \label{s:expthroughput}
@@ -106,14 +100,14 @@ As for the experimental procedure, we runs 5 farmers and 25 clients in total. Ea
 \begin{figure}[hbt]
 \centering
   \includegraphics[width=14cm]{charts/chart_upload_throughput.png}
-  \caption{Upload throughput with respect to file size and number of shards}
+  \caption[Upload throughput with respect to file size and number of shards]{Upload throughput(MB/s) with respect to file size(MB) and number of shards $p$. With a file of size 64 MB, a sharding schema in which $p=16$ brings a best performance of around 39 MB/s.}
   \label{fig:uploadthroughput}
 \end{figure}
 
 \begin{figure}[hbt]
 \centering
   \includegraphics[width=14cm]{charts/chart_download_throughput.png}
-  \caption{Download throughput with respect to file size and number of shards}
+  \caption[Download throughput with respect to file size and number of shards]{Download throughput(MB/s) with respect to file size(MB) and number of shards $p$. With a file of size 64 MB, a sharding schema in which $p=8$ brings a best performance of around 54 MB/s.}
   \label{fig:downloadthroughput}
 \end{figure}
 
@@ -121,6 +115,36 @@ From the result shown in figure \ref{fig:uploadthroughput}, we observe that uplo
 
 Due to the procedural differences, the chart of download throughput, figure \ref{fig:downloadthroughput} seems different from that of upload throughput. First, the curves achieve peak value when number of shards is around 8. Second, download throughput is generally higher than upload throughput. This is because of the fact that download only involves retrieval of 1 copy of the target shard instead of $K$. Considering figure \ref{fig:uploadthroughput} and figure \ref{fig:downloadthroughput} collectively, we can conclude that under this scenario, choices of \#shards = 8 or 16 brings the best I/O performance in general.
 
-% % exp: Cost Efficiency
-% \section{Experiment: Cost Efficiency}
-% \label{s:expcostefficiency}
+% exp: Cost -- Storage Release
+\section{Experiment: Cost -- Storage Release}
+\label{s:expcoststoragerelease}
+
+The purpose of this experiment is to evaluate the effectiveness of \textit{storage release} mechanism. By description in \ref{ss:storagerelease}, storage release is a cost-reducing mechanism addressing redundant \textit{static storage fee}, which often comes up with scenarios of service outage or migration of storage providers. To investigate the effect of storage release, we simulate a migration scenario. The experimental procedure goes as follows: we first start a network of 3 public farmers and 50 clients. Clients are allowed to randomly upload files until a total of 2000 files are stored in the network. Then we start another public farmer. Due to the \textit{key republishing} mechanism of Kademlia, some of the shards will be replicated to the newly-joined farmer. We then record the total static storage fee every simulational month until a year passed. We run this whole procedure in 3 different settings: (1) migration with storage release, (2) migration without storage release, (3) no migration and plot the growing curve of total static fee charged by public storage providers.
+
+\begin{figure}[hbt]
+  \centering
+    \includegraphics[width=14cm]{charts/chart_cost_storage_release.png}
+    \caption[Growth curve of static fee in 3 different settings: (1) migration with storage release, (2) migration without storage release, (3) no migration]{Growth curve of static fee in 3 different settings: (1) migration with storage release, (2) migration without storage release, (3) no migration. By enabling storage release, a 21.1\% of storage cost overhead is avoided.}
+    \label{fig:coststoragerelease}
+\end{figure}
+
+From figure \ref{fig:coststoragerelease}, we can observe that static storage fee grows linearly with time. This is due to our experimental settings that a fixed number of files are stored on the network after migration occurs, and thus monthly fees are charged according to the size of static files. However, we can also observe that in the case of \textit{migration without storage release}, the cost trend is steeper then that of other 2 cases, which implies that a static number of redundant shards are stored on public clouds. These redundant shards then induces a fixed cost every month. In the context of this experiment where number of farmers migrates from 3 to 4, the storage overhead is roughly $21.1\%$ more than the case where no migration occurs. By enabling storage release, this overhead can be avoided, with the cost curve sticking to that of non-migration case.
+
+% exp: Cost -- Prioritized Download
+\section{Experiment: Cost -- Prioritized Download}
+\label{s:expcostprioritizeddownload}
+
+In this experiment, we want to evaluate the cost preserved by the \textit{prioritized download} mechanism in a hybrid setting where both public clouds and private servers contribute to the strorage network, while public clouds charge storage fees but private servers do not. As described in \ref{ss:prioritizeddownload}, the prioritized download mechanism saves \textit{data transfer out} fee by settings preference to downloading from private farmers over public ones. Thus, we conduct experiment according to such hybrid scenario: we first bootstrap 25 farmers, with $N$ of them public farmers and other $(25-N)$ of them private ones.  Then we start 50 clients and let them upload and download files randomly. We record the transfer fee accumulated in the following 3 minutes and compare the total fee in 2 cases: (1) with prioritized download, (2) without prioritized download. The whole procedure is repeated for $N = 1, 2, 4$.
+
+\begin{figure}[hbt]
+  \centering
+    \includegraphics[width=14cm]{charts/chart_cost_prioritized_download.png}
+    \caption[Comparison of transfer fee in 2 cases: (1) with prioritized download, (2) without prioritized download]{Comparison of transfer fee in 2 cases: (1) with prioritized download, (2) without prioritized download. Prioritized download mechanism preserves 47.6\% of transfer fee in average}
+    \label{fig:costprioritizeddownload}
+\end{figure}
+
+From figure \ref{fig:costprioritizeddownload}, we observed that prioritized download saves 52.3\%, 42.0\%, 48.0\% of \textit{data transfer out fee} in the cases of $N = 1, 2, 4$, respectively. Since \textit{prioritized download} only changes the preference of downloading order, this saving of cost only applies to \textit{data transfer out fee} but not \textit{static fee}. With the same sense, \textit{prioritized download} does not affect retrievability of files since shards are still saved on the public clouds, only with lower access rates.
+
+
+
+  

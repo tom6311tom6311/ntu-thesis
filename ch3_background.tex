@@ -9,8 +9,6 @@ In this chapter, we review important properties of several technologies or terms
 
 Cloud computing is a model describing the relationship between computing resources, service providers and consumers over network connections. In this model, service provider makes effort to offer consumers a convenient, reliable and on-demand way of accessing computing resources. The provider's computing resources are normally pooled to serve multiple consumers using a multi-tenant way with different physical and virtual resources dynamically assigned and reassigned according to consumer's demand. From consumer's point of view, the capabilities available often appear to be unlimited and can be elastically provisioned and released in any amount as long as they need. Furthermore, the resource usage can usually be measured with certain metrics (e.g., storage, processing, bandwidth and active user accounts) and be reported to both provider and consumers transparently. Based on a signed contract, provider then charges consumers in regular basis according to resource usage.\cite{mell2011nist}
 
-\newpage
-
 With cloud computing technology, enterprises obtain an easy way toward computing outsourcing, in a sense that they no longer need to commit a large amount of capital on hardware and software to build their own IT infrastructure before product launch. Instead, they can rapidly allocate just-enough computing power and storage space as they need with minimal management overhead. They can also elastically expand or reduce the amount of allocated resources based on changes of business scale. Due to the flexibility and reliability, cloud computing has given rise to a paradigm shift in how computing services are deployed and delivered.\cite{6123700}
 
 % Cloud Storage Service
@@ -29,8 +27,6 @@ Cloud storage services have successfully relieve individual or enterprise consum
 
 Although cloud computing provides benefits in terms of low cost, elasticity and reliability, ensuring security of data stored on clouds remains an unsolved problem, as consumers often store critical and sensitive data on the services offered by a third-party provider which may be untrusted. To solve this issue, researchers have moved forward to  a new research domain\cite{aizain2012multiclouds}. "Cloud-of-clouds", or "multi-clouds", "interclouds" is an area of research aiming to build a service on multiple clouds and avoid dependence or data leakage on any of them. The term was firstly introduced by Vukolic\cite{vukolic2010byzantine}. Multiple works have been proposed at around the same time\cite{bowers2009hail},\cite{abu2010racs},\cite{cachin2010dependable},\cite{bessani2013depsky}. The research in this area has often been formulated as a Byzantine fault tolerance problem\cite{lamport1982byzantine}, in the sense that any faults occurring to a cloud may lead to misbehavior of it, while the system is designed to tolerate certain level of concurrent cloud failures. Besides, approaches of solving the single-cloud problem often integrate certain means of coding techniques that not only add redundancy to data, but also make sure that a file is not view-able or recoverable from any single cloud. This way, risks of malicious insider or single cloud service failure can be reduced significantly.
 
-\newpage
-
 % Hybrid Cloud
 \section{Hybrid Cloud}
 \label{s:hybridcloud}
@@ -48,8 +44,6 @@ Peer-to-Peer is a computing or networking architecture in which each participant
 \label{s:distributedhashtable}
 
 How to search for data over a fully-distributed network has always been a research topic drawing high attention. Of all kind of means proposed, distributed hash table (DHT) is the most popular category due to its high efficiency. Generally speaking, DHT is a content-addressed approach in which each piece of data is assigned with a \textit{key} defined as its hash value. The piece of data is then stored in the distributed network according to its \textit{key}. Thus, the locations where a given piece of data should be stored are defined by its content. This introduces deduplication feature for such systems since same content will always be stored on same set of nodes. Besides, the dispersal and randomness properties of hash function also enable DHT-based systems to be designed in a load-balancing way. In P2P applications, DHTs are often implemented as an overlay or infrastructure that more complex services can be built upon. Such applications then inherit the desired features of their underlying DHTs. A DHT protocol also defines how to lookup and retrieve data from the network. Efficiency of the lookup process has a direct impact on performance and usability of systems based on the DHT. Most of the widely-used DHTs have logarithm-time guarantee on worst-case lookup length. Chord\cite{stoica2001chord}, Kademlia\cite{maymounkov2002kademlia}, Pastry\cite{rowstron2001pastry}, Tapestry\cite{zhao2004tapestry} are some well-known DHT protocols, to name a few.
-
-\newpage
 
 % Kademlia
 \section{Kademlia}
@@ -82,24 +76,20 @@ Notice that IDs in each subtree share the same prefix, where the last bit of the
 
 In Kademlia, a node with ID $x$ maintains a routing table that keeps at most $K$ records of peers for each subtrees in $D_{1}(x), D_{2}(x), ..., D_{d}(x)$. With this routing table, the node is acknowledged of peers' contact information from a wide range of distance.
 
-\newpage
-
 Before explaining details of lookup procedures, we define 2 types of RPCs (Remote Procedure Call) used by Kademlia nodes to communicate with each other:
 \begin{itemize}
   \item \textit{FIND\_NODE}:
   \begin{itemize}
-    \item Purpose: To request a receiver for information of K nodes it knows closest to a TARGET\_ID
-    \item Request Parameters: TARGET\_ID
-    \item Response: K triples of <IP address, UDP port, Node ID>
+    \item \textbf{Input}: a 160-bit TARGET\_ID
+    \item \textbf{Output}: $K$ triples of \textit{<IP address, UDP port, Node ID>} known by the receiver with Node IDs closest to TARGET\_ID
   \end{itemize}
   \item \textit{FIND\_VALUE}
   \begin{itemize}
-    \item Purpose: To request the data corresponding to a TARGET\_KEY
-    \item Request Parameters: TARGET\_KEY
-    \item Response: 
+    \item \textbf{Input}: a 160-bit TARGET\_KEY
+    \item \textbf{Output}: 
     \begin{itemize}
-      \item K triples of <IP address, UDP port, Node ID> known by the receiver which are closest to TARGET\_KEY; if the receiver does not store the target data
-      \item target data; if the receiver does store the target data
+      \item The data chunk with key being TARGET\_KEY; if the receiver does store the data chunk with key being TARGET\_KEY
+      \item $K$ triples of \textit{<IP address, UDP port, Node ID>} known by the receiver which are closest to TARGET\_KEY; otherwise
     \end{itemize}
   \end{itemize}
 \end{itemize}
@@ -110,32 +100,38 @@ Before explaining details of lookup procedures, we define 2 types of RPCs (Remot
   \item \textit{VALUE\_LOOKUP}: to find the content corresponding to a target key
 \end{itemize}
 
-\newpage
-
-\noindent The \textbf{NODE\_LOOKUP} procedure executes as follows:
+\noindent \textbf{Algorithm \textit{NODE\_LOOKUP:}}
+\begin{itemize}
+  \item \textbf{Input}: a 160-bit TARGET\_ID, $K$ triples of \textit{<IP address, UDP port, Node ID>} known by the initializer with Node IDs closest to TARGET\_ID
+  \item \textbf{Output}: $K$ triples of \textit{<IP address, UDP port, Node ID>} in the network with Node IDs closest to TARGET\_ID
+\end{itemize}
 \begin{enumerate}[label=(\roman*)]
-  \item The initializer puts the k closest nodes it knows into a lookup-memory
+  \item The initializer puts the $K$ closest nodes it knows into a lookup-memory
   \item The initializer picks $\alpha$ nodes from the lookup-memory, where $\alpha$ is a system-wide concurrency parameter, such as 3.
-  \item The initializer sends parallel, asynchronous FIND\_NODE RPCs to these $\alpha$ nodes and expect to receive K closest node records known by each of them.
-  \item When receiving a FIND\_NODE response containing k node candidates, the initializer updates these candidates to the lookup-memory and leaves only k closest ones. Then the initializer picks $\alpha$ un-queried nodes from the lookup memory and sends FIND\_NODE RPCs to them
+  \item The initializer sends parallel, asynchronous FIND\_NODE RPCs to these $\alpha$ nodes and expect to receive $K$ closest node records known by each of them.
+  \item When receiving a FIND\_NODE response containing k node candidates, the initializer updates these candidates to the lookup-memory and leaves only $K$ closest ones. Then the initializer picks $\alpha$ un-queried nodes from the lookup-memory and sends FIND\_NODE RPCs to them
   \item If a round of FIND\_NODE fails to return closer nodes than the ones in the lookup-memory, the initializer sends FIND\_NODEs to all un-queried nodes in the lookup-memory
-  \item The NODE\_LOOKUP procedure terminates when the initializer receives all responses. Now the $K$ nodes in lookup memory are the $K$ closest ones to the target key over the network.
+  \item The NODE\_LOOKUP procedure terminates when the initializer receives all responses. Now the $K$ nodes in lookup-memory are the $K$ closest ones to TARGET\_ID over the network and should be returned.
 \end{enumerate}
 
-\newpage
-
-\noindent The \textbf{VALUE\_LOOKUP} procedure executes as follows:
+\noindent \textbf{Algorithm \textit{VALUE\_LOOKUP:}}
+\begin{itemize}
+  \item \textbf{Input}: a 160-bit TARGET\_KEY, $K$ triples of \textit{<IP address, UDP port, Node ID>} known by the initializer with Node IDs closest to TARGET\_KEY
+  \item \textbf{Output}:
+  \begin{itemize}
+    \item The TARGET\_CHUNK with key being TARGET\_KEY; if TARGET\_CHUNK exists in the network
+    \item $K$ triples of \textit{<IP address, UDP port, Node ID>} in the network which are closest to TARGET\_KEY; otherwise
+  \end{itemize}
+\end{itemize}
 \begin{enumerate}[label=(\roman*)]
-  \item The initializer puts the k closest nodes it knows into a lookup-memory
+  \item The initializer puts the $K$ closest nodes it knows into a lookup-memory
   \item The initializer picks $\alpha$ nodes from the lookup-memory, where $\alpha$ is a system-wide concurrency parameter, such as 3.
   \item The initializer sends parallel, asynchronous FIND\_VALUE RPCs to these $\alpha$ nodes.
-  \item When receiving a FIND\_VALUE response containing the target content, the procedure ends
-  \item When receiving a FIND\_VALUE response containing k node candidates, the initializer updates these candidates to the lookup-memory and leaves only k closest ones. Then the initializer picks $\alpha$ un-queried nodes from the lookup memory and sends FIND\_VALUE RPCs to them
+  \item When receiving a FIND\_VALUE response containing TARGET\_CHUNK, the procedure ends by returning TARGET\_CHUNK
+  \item When receiving a FIND\_VALUE response containing $K$ node candidates, the initializer updates these candidates to the lookup-memory and leaves only $K$ closest ones. Then the initializer picks $\alpha$ un-queried nodes from the lookup memory and sends FIND\_VALUE RPCs to them
   \item If a round of FIND\_VALUE fails to return closer nodes than the ones in the lookup-memory, the initializer sends FIND\_VALUEs to all un-queried nodes in the lookup-memory
-  \item The VALUE\_LOOKUP procedure terminates when the initializer receives all responses. In this case, the initializer fails to find the target value.
+  \item The VALUE\_LOOKUP procedure terminates when the initializer receives all responses. In this case, the initializer fails to find TARGET\_CHUNK, and the $K$ nodes in the lookup memory closest to TARGET\_KEY should be returned.
 \end{enumerate}
-
-\newpage
 
 Now we want to discuss the efficiency of NODE\_LOOKUP and VALUE\_LOOKUP procedures. According to the sketch of proof in \cite{maymounkov2002kademlia}, NODE\_LOOKUP in a Kademlia network will finish in $\lceil log(n) \rceil + c$ steps for some small constant of $c$, where $n$ is network size, i.e., number of nodes in the network. This gives an rough upper bound for NODE\_LOOKUP efficiency.
 
@@ -143,15 +139,11 @@ Different from NODE\_LOOKUP, the VALUE\_LOOKUP procedure finishes immediately wh
 
 From the analysis above, we know that both NODE\_LOOKUP and VALUE\_LOOKUP procedures are guaranteed to be finished in logarithm steps, while VALUE\_LOOKUP takes a tighter bond with a factor of $H_K = \sum_{i=1}^{K} 1/i$, since only 1 copy of data is required to be found, and we can find it by reaching any of the $K$ storing nodes.
 
-\newpage
-
 \subsection{Redundancy Maintenance}
 \label{ss:redundancymaintenance}
 Redundancy maintenance is another desired property provided by Kademlia. When a node churns off from the network, each of the data chunks it used to stored will lose one redundancy copy. Kademlia has a \textit{Efficient Key Republishing} mechanism ensuring that each chunk will always have at least $K$ copies over the storage network.
 
 The \textit{Efficient Key Republishing} mechanism regularly checks if each data chunk is stored on the $K$ closest farmers. If any of the $K$ closest farmers does not store the chunk, a copy will automatically be sent to it. This assurance is provided by the design in which each farmer periodically attempts to \textit{republish} each chunk it stored to the other $K-1$ farmers who should store the same chunk. During the republishing period, if a farmer receives the republishing message of a chunk from other farmer, it assumes the message has also been sent to the other $K-1$ closest farmers and thus it should not republish it again during this period in order to reduce traffic. As long as the republishing interval of farmers are not exactly matched, there will only be exactly 1 republishing message for each chunk in each interval. However, the Efficient Key Republishing mechanism has a considerable overhead. Within a \textit{republishing period}, each chunk induces one NODE\_LOOKUP followed by $K$ republishing messages. Choices of longer republishing period would mitigate the overhead while providing weaker guarantee on retrievability of files.
-
-\newpage
 
 % Information Dispersal Algorithm
 \section{Information Dispersal Algorithm}
@@ -167,8 +159,6 @@ Due to its potential traits of security, load-balancing and fault tolerance desi
   \caption{An example of IDA with schema $(p,q)=(4,2)$}
   \label{fig:ida}
 \end{figure}
-
-\newpage
 
 % Public Key Infrastructure
 \section{Public Key Infrastructure}
