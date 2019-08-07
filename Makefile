@@ -3,6 +3,9 @@ LATEX=xelatex
 BIBTEX=bibtex
 RM=rm -f
 NTU_WATERMARK_LINK=http://etds.lib.ntu.edu.tw/files/watermark.pdf
+# WATERMARK=yes
+# DOI=yes
+# CERTIFICATION=yes
 
 .SUFFIXES: .tex
 
