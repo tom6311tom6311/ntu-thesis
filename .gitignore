@@ -10,4 +10,5 @@
 *.thesis.out
 *.gz
 *.xwm
+*.out
 **~$**

@@ -109,7 +109,7 @@ Before explaining details of lookup procedures, we define 2 types of RPCs (Remot
   \item The initializer puts the $K$ closest nodes it knows into a lookup-memory.
   \item The initializer picks $\alpha$ nodes from the lookup-memory, where $\alpha$ is a system-wide concurrency parameter, such as 3.
   \item The initializer sends parallel, asynchronous FIND\_NODE RPCs to these $\alpha$ nodes and expect to receive $K$ closest node records known by each of them.
-  \item When receiving a FIND\_NODE response containing k node candidates, the initializer updates these candidates to the lookup-memory and leaves only $K$ closest ones. Then the initializer picks $\alpha$ un-queried nodes from the lookup-memory and sends FIND\_NODE RPCs to them.
+  \item When receiving a FIND\_NODE response containing $K$ node candidates, the initializer updates these candidates to the lookup-memory and leaves only $K$ closest ones. Then the initializer picks $\alpha$ un-queried nodes from the lookup-memory and sends FIND\_NODE RPCs to them.
   \item If a round of FIND\_NODE fails to return closer nodes than the ones in the lookup-memory, the initializer sends FIND\_NODEs to all un-queried nodes in the lookup-memory.
   \item The NODE\_LOOKUP procedure terminates when the initializer receives all responses. Now the $K$ nodes in lookup-memory are the $K$ closest ones to TARGET\_ID over the network and should be returned.
 \end{enumerate}
